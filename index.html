@@ -1,221 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Giphy Search - Select and Use GIF</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 0 15px;
-      text-align: center;
-    }
-    h1 {
-      color: #444;
-    }
-    input[type="text"] {
-      width: 70%;
-      padding: 10px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      margin-left: 10px;
-      cursor: pointer;
-      border: none;
-      background-color: #1ea1f7;
-      color: white;
-      border-radius: 4px;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #0d8ae8;
-    }
-    #results {
-      margin-top: 30px;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-    }
-    #results img {
-      max-width: 180px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      cursor: pointer;
-      transition: transform 0.2s ease, border 0.3s ease;
-      border: 3px solid transparent;
-    }
-    #results img:hover {
-      transform: scale(1.05);
-    }
-    #results img.selected {
-      border-color: #1ea1f7;
-      transform: scale(1.05);
-    }
-    #loading {
-      margin-top: 20px;
-      font-size: 1.1rem;
-      color: #555;
-    }
-    #error {
-      margin-top: 20px;
-      font-size: 1.1rem;
-      color: red;
-    }
-    #useGifContainer {
-      margin-top: 20px;
-      display: none; /* initially hidden */
-    }
-    #selectedGifUrlDisplay {
-      margin-top: 15px;
-      font-size: 1rem;
-      word-break: break-all;
-      color: #333;
-    }
-  </style>
-</head>
-<body>
-  <h1>Search Giphy GIFs</h1>
-  <input type="text" id="searchTerm" placeholder="Enter search term..." />
-  <button id="searchBtn">Search</button>
-
-  <div id="loading" style="display:none;">Loading...</div>
-  <div id="error"></div>
-  <div id="results"></div>
-
-  <div id="useGifContainer">
-    <button id="useGifBtn">Use this GIF</button>
-  </div>
-
-  <div id="selectedGifUrlDisplay"></div>
-
-  <script>
-    // IMPORTANT: Put your API key inside quotes
-    const apiKey = '3YiKNeszaJz24kUMlGxNug9qRbumqG98';
-
-    const searchBtn = document.getElementById('searchBtn');
-    const searchTermInput = document.getElementById('searchTerm');
-    const resultsDiv = document.getElementById('results');
-    const loadingDiv = document.getElementById('loading');
-    const errorDiv = document.getElementById('error');
-    const useGifContainer = document.getElementById('useGifContainer');
-    const useGifBtn = document.getElementById('useGifBtn');
-    const selectedGifUrlDisplay = document.getElementById('selectedGifUrlDisplay');
-
-    let selectedGifUrl = null;  // Will hold the URL of the clicked gif
-    let selectedImgElement = null;
-
-    searchBtn.addEventListener('click', () => {
-      performSearch();
-    });
-
-    searchTermInput.addEventListener('keyup', e => {
-      if (e.key === 'Enter') {
-        performSearch();
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Giphy Search - Select and Use GIF</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 15px;
+        text-align: center;
       }
-    });
-
-    function performSearch() {
-      const query = searchTermInput.value.trim();
-      errorDiv.textContent = '';
-      resultsDiv.innerHTML = '';
-      useGifContainer.style.display = 'none';
-      selectedGifUrlDisplay.textContent = '';
-      selectedGifUrl = null;
-      selectedImgElement = null;
-
-      if (!query) {
-        errorDiv.textContent = 'Please enter a search term.';
-        return;
+      h1 { color: #444; }
+      input[type="text"] {
+        width: 70%;
+        padding: 10px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
       }
-
-      if (!apiKey || apiKey.trim() === '') {
-        errorDiv.textContent = 'API key is missing. Please add your Giphy API key in the code.';
-        return;
+      button {
+        padding: 10px 20px;
+        font-size: 1rem;
+        margin-left: 10px;
+        cursor: pointer;
+        border: none;
+        background-color: #1ea1f7;
+        color: white;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
       }
+      button:hover { background-color: #0d8ae8; }
+      #results {
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+      }
+      #results img {
+        max-width: 180px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        cursor: pointer;
+        transition: transform 0.2s ease, border 0.3s ease;
+        border: 3px solid transparent;
+      }
+      #results img:hover { transform: scale(1.05); }
+      #results img.selected {
+        border-color: #1ea1f7;
+        transform: scale(1.05);
+      }
+      #loading {
+        margin-top: 20px;
+        font-size: 1.1rem;
+        color: #555;
+      }
+      #error {
+        margin-top: 20px;
+        font-size: 1.1rem;
+        color: red;
+      }
+      #useGifContainer {
+        margin-top: 20px;
+        display: none; /* initially hidden */
+      }
+      #selectedGifUrlDisplay {
+        margin-top: 15px;
+        font-size: 1rem;
+        word-break: break-all;
+        color: #333;
+      }
+    </style>
+  </head>
 
-      searchGifs(query);
-    }
+  <body>
+    <h1>Search Giphy GIFs</h1>
+    <input type="text" id="searchTerm" placeholder="Enter search term..." />
+    <button id="searchBtn">Search</button>
 
-    async function searchGifs(query) {
-      loadingDiv.style.display = 'block';
-      resultsDiv.innerHTML = '';
-      errorDiv.textContent = '';
-      useGifContainer.style.display = 'none';
-      selectedGifUrlDisplay.textContent = '';
-      selectedGifUrl = null;
-      selectedImgElement = null;
+    <div id="loading" style="display:none;">Loading...</div>
+    <div id="error"></div>
+    <div id="results"></div>
 
-      // Construct full URL with API key and query
-      const url = `https://api.giphy.com/v1/gifs/search?api_key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(query)}&limit=12&rating=g`;
-      console.log('Fetching Giphy API URL:', url);
+    <div id="useGifContainer">
+      <button id="useGifBtn">Use this GIF</button>
+    </div>
 
-      try {
-        const response = await fetch(url);
+    <div id="selectedGifUrlDisplay"></div>
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(`HTTP ${response.status} - ${errorText}`);
+    <script>
+      const apiKey = '3YiKNeszaJz24kUMlGxNug9qRbumqG98';
+
+      const searchBtn = document.getElementById('searchBtn');
+      const searchTermInput = document.getElementById('searchTerm');
+      const resultsDiv = document.getElementById('results');
+      const loadingDiv = document.getElementById('loading');
+      const errorDiv = document.getElementById('error');
+      const useGifContainer = document.getElementById('useGifContainer');
+      const useGifBtn = document.getElementById('useGifBtn');
+      const selectedGifUrlDisplay = document.getElementById('selectedGifUrlDisplay');
+
+      let selectedGifUrl = null;
+      let selectedImgElement = null;
+
+      searchBtn.addEventListener('click', performSearch);
+      searchTermInput.addEventListener('keyup', e => { if (e.key === 'Enter') performSearch(); });
+
+      function performSearch() {
+        const q = searchTermInput.value.trim();
+        errorDiv.textContent = '';
+        resultsDiv.innerHTML = '';
+        useGifContainer.style.display = 'none';
+        selectedGifUrlDisplay.textContent = '';
+        selectedGifUrl = null;
+        selectedImgElement = null;
+
+        if (!q) {
+          errorDiv.textContent = 'Please enter a search term.';
+          return;
         }
+        if (!apiKey.trim()) {
+          errorDiv.textContent = 'Missing Giphy API key.';
+          return;
+        }
+        searchGifs(q);
+      }
 
-        const data = await response.json();
+      async function searchGifs(query) {
+        loadingDiv.style.display = 'block';
+        resultsDiv.innerHTML = '';
+        errorDiv.textContent = '';
+        useGifContainer.style.display = 'none';
+        selectedGifUrlDisplay.textContent = '';
+        selectedGifUrl = null;
+        selectedImgElement = null;
 
-        loadingDiv.style.display = 'none';
+        const url = `https://api.giphy.com/v1/gifs/search?api_key=${encodeURIComponent(apiKey)}&q=${encodeURIComponent(query)}&limit=12&rating=g`;
+        try {
+          const resp = await fetch(url);
+          if (!resp.ok) throw new Error(await resp.text());
+          const { data } = await resp.json();
+          loadingDiv.style.display = 'none';
+          if (!data.length) {
+            errorDiv.textContent = 'No results found.';
+            return;
+          }
+          data.forEach(gif => {
+            const img = document.createElement('img');
+            img.src = gif.images.fixed_height_small.url;
+            img.alt = gif.title || 'Giphy GIF';
+            img.title = gif.title || 'Giphy GIF';
+            img.addEventListener('click', () => selectGif(img, gif.embed_url));
+            resultsDiv.appendChild(img);
+          });
+        } catch (err) {
+          loadingDiv.style.display = 'none';
+          errorDiv.textContent = `Error: ${err.message}`;
+        }
+      }
 
-        if (data.data.length === 0) {
-          errorDiv.textContent = 'No results found.';
+      function selectGif(imgEl, url) {
+        if (selectedImgElement) selectedImgElement.classList.remove('selected');
+        selectedImgElement = imgEl;
+        selectedImgElement.classList.add('selected');
+        selectedGifUrl = url;
+        useGifContainer.style.display = 'block';
+        selectedGifUrlDisplay.textContent = '';
+      }
+
+      useGifBtn.addEventListener('click', () => {
+        if (!selectedGifUrl) {
+          alert('Please select a GIF first.');
           return;
         }
 
-        data.data.forEach(gif => {
-          const img = document.createElement('img');
-          img.src = gif.images.fixed_height_small.url;
-          img.alt = gif.title || 'Giphy GIF';
-          img.title = gif.title || 'Giphy GIF';
+        // expose globally
+        window.selectedGifUrl = selectedGifUrl;
 
-          img.addEventListener('click', () => {
-            selectGif(img, gif.images.fixed_height_small.url);
-          });
+        // display iframe + prompt
+        selectedGifUrlDisplay.innerHTML = `
+          <iframe
+            src="${selectedGifUrl}"
+            width="320"
+            height="180"
+            frameborder="0"
+            class="giphy-embed"
+            allowfullscreen>
+          </iframe>
+          <p>Click Next to submit</p>
+        `;
 
-          resultsDiv.appendChild(img);
-        });
-      } catch (error) {
-        loadingDiv.style.display = 'none';
-        errorDiv.textContent = `Failed to fetch GIFs: ${error.message}`;
-        console.error('Giphy API error:', error);
-      }
-    }
-
-    function selectGif(imgElement, url) {
-      if (selectedImgElement) {
-        selectedImgElement.classList.remove('selected');
-      }
-
-      selectedImgElement = imgElement;
-      selectedImgElement.classList.add('selected');
-      selectedGifUrl = url;
-
-      useGifContainer.style.display = 'block';
-      selectedGifUrlDisplay.textContent = '';
-    }
-
-    useGifBtn.addEventListener('click', () => {
-      if (!selectedGifUrl) {
-        alert('Please select a GIF first.');
-        return;
-      }
-
-      selectedGifUrlDisplay.textContent = 'Selected GIF URL: ' + selectedGifUrl;
-      console.log('User selected GIF URL:', selectedGifUrl);
-
-      // You can add your logic here to use the selected GIF URL elsewhere
-    });
-  </script>
-</body>
+        // postMessage to parent Qualtrics frame
+        parent.postMessage(
+          { selectedGifUrl: selectedGifUrl },
+          'https://dbarnesQualtrics.github.io'
+        );
+      });
+    </script>
+  </body>
 </html>
