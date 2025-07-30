@@ -5,7 +5,102 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Giphy Search - Select and Use GIF</title>
     <style>
-      /* … your existing styles … */
+      /* Improved, friendlier styling */
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f7fa;
+        color: #333;
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 0 20px;
+        text-align: center;
+      }
+      h1 {
+        margin-bottom: 20px;
+        font-size: 2rem;
+        color: #444;
+      }
+      input[type="text"]#searchTerm {
+        width: 60%;
+        padding: 12px 16px;
+        font-size: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.3s ease;
+      }
+      input[type="text"]#searchTerm:focus {
+        outline: none;
+        border-color: #1ea1f7;
+      }
+      button#searchBtn,
+      button#useGifBtn {
+        padding: 12px 24px;
+        font-size: 1rem;
+        margin-left: 10px;
+        cursor: pointer;
+        border: none;
+        background-color: #1ea1f7;
+        color: #fff;
+        border-radius: 25px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+      button#searchBtn:hover,
+      button#useGifBtn:hover {
+        background-color: #0d8ae8;
+        transform: translateY(-2px);
+      }
+      #loading {
+        margin-top: 20px;
+        font-size: 1.1rem;
+        color: #555;
+      }
+      #error {
+        margin-top: 20px;
+        font-size: 1rem;
+        color: #c0392b;
+        background-color: #fceae9;
+        padding: 10px 15px;
+        border: 1px solid #e0a0a0;
+        border-radius: 6px;
+      }
+      #results {
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+      }
+      #results img {
+        max-width: 180px;
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: transform 0.2s ease, border 0.3s ease;
+        border: 3px solid transparent;
+      }
+      #results img:hover {
+        transform: scale(1.05);
+      }
+      #results img.selected {
+        border-color: #1ea1f7;
+        box-shadow: 0 4px 12px rgba(30, 161, 247, 0.4);
+      }
+      #useGifContainer {
+        margin-top: 20px;
+      }
+      #selectedGifUrlDisplay {
+        margin-top: 15px;
+        font-size: 1rem;
+        word-break: break-all;
+        color: #333;
+      }
+      iframe.giphy-embed {
+        border-radius: 12px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 10px;
+      }
     </style>
   </head>
   <body>
@@ -16,10 +111,10 @@
     <div id="error"></div>
     <div id="results"></div>
 
-    <div id="useGifContainer" style="margin-top:20px; display:none;">
+    <div id="useGifContainer" style="display:none;">
       <button id="useGifBtn">Use this GIF</button>
     </div>
-    <div id="selectedGifUrlDisplay" style="margin-top:15px;"></div>
+    <div id="selectedGifUrlDisplay"></div>
 
     <script>
       const apiKey = '3YiKNeszaJz24kUMlGxNug9qRbumqG98';
@@ -33,8 +128,8 @@
       const useGifBtn = document.getElementById('useGifBtn');
       const selectedGifUrlDisplay = document.getElementById('selectedGifUrlDisplay');
 
-      let selectedGifEmbedUrl = null;  // for iframe display
-      let selectedGifPageUrl  = null;  // for capture
+      let selectedGifEmbedUrl = null;
+      let selectedGifPageUrl = null;
 
       searchBtn.addEventListener('click', performSearch);
       searchTermInput.addEventListener('keyup', e => { if (e.key === 'Enter') performSearch(); });
@@ -80,15 +175,15 @@
           }
 
           data.forEach(gif => {
-            const img      = document.createElement('img');
-            const embedUrl = gif.embed_url;          // iframe source
-            const pageUrl  = gif.url +               // Giphy page URL
+            const img = document.createElement('img');
+            const embedUrl = gif.embed_url;
+            const pageUrl = gif.url +
               '?utm_source=iframe&utm_medium=embed' +
               '&utm_campaign=Embeds' +
               '&utm_term=' + encodeURIComponent(window.location.href);
 
-            img.src   = gif.images.fixed_height_small.url;
-            img.alt   = gif.title || 'Giphy GIF';
+            img.src = gif.images.fixed_height_small.url;
+            img.alt = gif.title || 'Giphy GIF';
             img.title = gif.title || 'Giphy GIF';
 
             img.addEventListener('click', () => {
@@ -105,13 +200,12 @@
       }
 
       function selectGif(imgEl, embedUrl, pageUrl) {
-        // clear previous highlight
         document.querySelectorAll('#results img.selected')
                 .forEach(el => el.classList.remove('selected'));
 
         imgEl.classList.add('selected');
         selectedGifEmbedUrl = embedUrl;
-        selectedGifPageUrl  = pageUrl;
+        selectedGifPageUrl = pageUrl;
         useGifContainer.style.display = 'block';
         selectedGifUrlDisplay.textContent = '';
       }
@@ -122,7 +216,6 @@
           return;
         }
 
-        // show the embed
         selectedGifUrlDisplay.innerHTML = `
           <iframe
             src="${selectedGifEmbedUrl}"
@@ -136,10 +229,9 @@
 
         console.log('▶️ Widget posting selectedGifUrl:', selectedGifPageUrl);
 
-        // bubble the page URL up to Qualtrics
         window.top.postMessage(
           { selectedGifUrl: selectedGifPageUrl },
-          '*'   // during testing; later restrict to your exact Pages origin
+          '*'  
         );
       });
     </script>
